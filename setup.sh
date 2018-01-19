@@ -23,7 +23,7 @@ else
     echo "[+] Python 2.7 installed"
 fi
 
-echo -e "[*] Checking for modules outside standard libraries"
+echo -e "[*] Checking for non-standard libraries"
 if [[ $(python2.7 -c "import BeautifulSoup" 2>&1) == *"No module"* ]]
 then
     echo -e "[*] Installing python-beautifulsoup"
