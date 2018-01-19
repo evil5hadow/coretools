@@ -12,7 +12,7 @@ In the Linux terminal type:
 ## Scripts
 * `dns_enum.py` - DNS subdomain enumeration and options to perform zone transfer
 * `dns_lookup.py` - DNS lookup and reverse lookups
-* `eyesee.sh` - port scans a target network with nmap and takes snapshot of service with Eye Witness
+* `eyesee.sh` - Port scans a target network with nmap and takes snapshot of service with Eye Witness
 * `eyesee_robots.sh` - Takes a snapshot of all pages in a site's robots.txt
 * `get_server.py` - Returns the HTTP response 'Server' header
 * `smb_login.py` - SMB brute force tools
