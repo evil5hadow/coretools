@@ -1,5 +1,5 @@
 # Pentest-Scripts
-This is a collection of scripts written during penetration testing. Some have been modified and turned into full blown tools. For more information visit: [https://m8r0wn-cyber.blogspot.com](https://m8r0wn-cyber.blogspot.com).
+This is a collection of scripts I wrote or had the idea to write during penetration testing. Some have been modified and turned into full blown tools. For more information visit: [https://m8r0wn-cyber.blogspot.com](https://m8r0wn-cyber.blogspot.com).
 
 To get started, download the repository and run the setup.sh script to verify all required packages are installed.
 
