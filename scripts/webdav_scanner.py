@@ -10,7 +10,7 @@
 import sys
 import socket
 from threading import Thread
-from list_targets import list_targets, arg_parser
+from resources.pts import list_targets, arg_parser
 
 def banner():
     print """
@@ -34,9 +34,9 @@ def main():
     if "-h" in sys.argv or len(sys.argv) == 1: banner()
 
     targets = list_targets(sys.argv[-1])
-    v = arg_parser(name='verbose', flag='-v', type=bool, default=False)
-    max_threads = arg_parser(name='max threads', flag='-t', type=int, default=4)
-    port = arg_parser(name='port', flag='-p', type=int, default=80)
+    v = arg_parser(flag='-v', type='bool', default=False)
+    max_threads = arg_parser(flag='-t', type='int', default=4)
+    port = arg_parser(flag='-p', type='int', default=80)
 
     print "\n[*] Starting WebDav Scan\n", "-"*29
     scan_count = 0

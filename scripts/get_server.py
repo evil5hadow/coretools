@@ -11,7 +11,7 @@ import urllib2
 import ssl
 import sys
 from threading import Thread
-from list_targets import list_targets, arg_parser
+from resources.pts import list_targets, arg_parser
 
 def banner():
     print """
@@ -25,6 +25,8 @@ Options:
     -m [http/https]         Default will be both http & https
     -v                      Verbose output (show failed attempts)
     -t                      Number of threads (default: 4)
+    --dns                   Keep DNS name while running
+                            (Default: will resolv dns names)
 
 Usage:
     python get_server.py -m http scope.txt
@@ -73,10 +75,11 @@ def get_server(url):
         response = urllib2.urlopen(request, timeout=2, context=ctx)
         server_info = response.info().getheader('Server')
         if  "None" not in str(server_info):
-            return server_info
+            server_info
         else:
-            return "N/A"
+            server_info = "N/A"
         response.close()
+        return server_info
     except urllib2.HTTPError as e:
         server_info = e.info().getheader('Server')
         if "None" not in str(server_info):
@@ -89,9 +92,9 @@ def get_server(url):
 def main():
     # Parse cmdline args
     if "-h" in sys.argv or len(sys.argv) == 1: banner()
-    methods = arg_parser(name='method', flag='-m', type=list, default=['http://', 'https://'])
-    verbose = arg_parser(name='verbose', flag='-v', type=bool, default=False)
-    max_threads = arg_parser(name='max threads', flag='-t', type=int, default=4)
+    methods = arg_parser(flag='-m', type='list', default=['http://', 'https://'])
+    verbose = arg_parser(flag='-v', type='bool', default=False)
+    max_threads = arg_parser(flag='-t', type='int', default=4)
 
     #Start program
     targets = list_targets(sys.argv[-1])

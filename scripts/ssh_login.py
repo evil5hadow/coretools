@@ -8,7 +8,7 @@
 # consent. Use at your own risk.
 
 import paramiko
-import list_targets
+from resources.pts import list_targets, print_success, print_failure, print_status, arg_parser
 import sys
 
 def banner():
@@ -48,24 +48,24 @@ def ssh_login(target, port, auth_key, user, passwd, commands):
         client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
         if auth_key:
            paramiko.RSAKey.from_private_key_file(auth_key)
-           client.connect(target, port=port, username=user, password=passwd, key_filename=auth_key, timeout=3)
+           client.connect(target, port=port, username=user, password=passwd, key_filename=auth_key, timeout=2)
         else:
-            client.connect(target, port=port, username=user, password=passwd, timeout=3)
+            client.connect(target, port=port, username=user, password=passwd, timeout=2)
         session = client.get_transport().open_session()
-        list_targets.print_success("Success %s \'%s\':\'%s\' key=%s"% (target, user, passwd, bool(auth_key)))
+        print_success("Success %s \'%s\':\'%s\' key=%s"% (target, user, passwd, bool(auth_key)))
     except KeyboardInterrupt:
         print "\n[!] Key Event Detected...\n\n"
         sys.exit(0)
     except Exception as e:
         #print e
-        list_targets.print_failure("Login Failed %s \'%s\':\'%s\' key=%s" % (target, user, passwd, bool(auth_key)))
+        print_failure("Login Failed %s \'%s\':\'%s\' key=%s" % (target, user, passwd, bool(auth_key)))
         return False
     #Code Exec
     if session.active and commands:
         try:
             session.exec_command('bash -s')
             for cmd in commands:
-                list_targets.print_status("COMMAND: %s" % (cmd))
+                print_status("COMMAND: %s" % (cmd))
                 session.send_ready()
                 session.send('%s\n' % (cmd))
                 session.recv_ready()
@@ -82,23 +82,23 @@ def main():
     if "-h" in sys.argv or len(sys.argv) == 1: banner()
     try:
         if "-U" in sys.argv:
-            users = list_targets.arg_parser(name='user', flag='-U', type=file, default=False)
+            users = arg_parser(flag='-U', type='file', default=False)
         else:
-            users = list_targets.arg_parser(name='user', flag='-u', type=list, default=None)
+            users = arg_parser(flag='-u', type='list', default=False)
 
         if "-P" in sys.argv:
-            passwds = list_targets.arg_parser(name='password', flag='-P', type=file, default=False)
+            passwds = arg_parser(flag='-P', type='file', default=False)
         else:
-            passwds = list_targets.arg_parser(name='password', flag='-p', type=list, default=None)
+            passwds = arg_parser(flag='-p', type='list', default="null")
 
-        key = list_targets.arg_parser(name='key', flag='-k', type='filename', default=None)
-        port = list_targets.arg_parser(name='port', flag='--port', type=int, default=22)
+        key = arg_parser(flag='-k', type='filename', default=None)
+        port = arg_parser(flag='--port', type='int', default=22)
 
         if "-e" in sys.argv:
             cmd = []
             cmd_input = sys.argv[sys.argv.index("-e")+1]
             if cmd_input.endswith(".txt"):
-                cmd = list_targets.arg_parser(name='commands', flag='-e', type=file, default=False)
+                cmd = arg_parser(name='commands', flag='-e', type=file, default=False)
             elif "&&" in cmd_input:
                 for x in cmd_input.split("&&"):
                     cmd.append(x)
@@ -108,14 +108,14 @@ def main():
 
         #Start ssh_login
         print "\n[*] Starting ssh_login\n", "-"*29
-        for target in list_targets.list_targets(sys.argv[-1]):
+        for target in list_targets(sys.argv[-1]):
             for user in users:
-                #single key
-                if key:
-                    ssh_login(target, port, key, user, passwd, cmd)
-                #Iterate through passwd list
-                else:
-                    for passwd in passwds:
+                for passwd in passwds:
+                    #single key
+                    if key:
+                        ssh_login(target, port, key, user, passwd, cmd)
+                    #Iterate through passwd list
+                    else:
                         ssh_login(target,port,key,user,passwd,cmd)
         print "\n[*] Scan Complete\n"
     except Exception as e:

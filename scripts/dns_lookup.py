@@ -7,10 +7,8 @@
 # This tool was designed to be used only with proper
 # consent. Use at your own risk.
 
-import dns.resolver
-import dns.reversename
 import sys
-import list_targets
+from resources.pts import arg_parser, dns_lookup, list_targets, reverse_lookup
 
 def banner():
     print """
@@ -20,7 +18,7 @@ def banner():
 
 Options:
     -t [type]       DNS lookup types:
-                    [NS, A, AAAA, MX, TXT, CNAME, HINFO, ISDN, PTR, SOA]
+                    [A,NS,MX,TXT,CNAME,HINFO,PTR,SOA,SPF,SRV,RP]
 
     -t all          Lookup all DNS types
 
@@ -29,62 +27,47 @@ Options:
 Usage:
     python dns_lookup.py -t MX google.com
     python dns_lookup.py -t all yahoo.com
-    python dns_lookup -r 172.217.3.46
+    python dns_lookup -r 172.217.3.46-50
     """
     sys.exit(0)
 
-def dns_lookup(target, lookup_type):
-    results = []
-    try:
-        # DNS Query
-        resolver = dns.resolver.Resolver()
-        resolver.timeout = 3
-        resolver.lifetime = 3
-        dns_query = dns.resolver.query(target, lookup_type)
-        dns_query.nameservers = ['8.8.8.8', '8.8.4.4']
-        # Display Data
-        for name in dns_query:
-            results.append(str(name))
-    except Exception as e:
-        print "[!] Error in DNS name resolution: %s" % (e)
-    return results
-
-def reverse_lookup(ip):
-    results = []
-    try:
-        addr = dns.reversename.from_address(ip)
-        results = dns_lookup(addr, "PTR")
-    except Exception as e:
-        print "[!] Error in reverse lookup"
-        print "[!]", e
-    return results
-
 def main():
     # Define Required Variables
-    all_types = ['NS', 'A', 'AAAA', 'MX', 'TXT', 'CNAME', 'HINFO', 'ISDN', 'PTR', 'SOA', 'SRV']
+    all_types = ['A','NS','MX','TXT','CNAME','HINFO','PTR','SOA','SPF','SRV','RP']
 
     # Parse cmdline args
     if "-h" in sys.argv or len(sys.argv) == 1: banner()
-    host = sys.argv[-1]
-    lookup_type = list_targets.arg_parser(name='lookup type', flag='-t', type=str, default=None)
-    rev = list_targets.arg_parser(name='reverse lookup', flag='-r', type=bool, default=False)
+    sys.argv.insert(0, "--dns") #keep all dns names in tact during listing of targets
+    hosts = list_targets(sys.argv[-1])
+    lookup_type = arg_parser(flag='-t', type='str', default="null")
+    rev = arg_parser(flag='-r', type='bool', default=False)
 
     # Start DNS lookup
     if lookup_type:
-        print "[*] Starting DNS Lookup"
-        if 'all' in lookup_type:
-            for dnstype in all_types:
-                print "\n[*] Searching \"%s\" records for %s" % (dnstype, host)
-                for x in dns_lookup(host, dnstype):
-                    print "    ", x
-        else:
-            print "\n[*] Searching \"%s\" records for %s" % (lookup_type, host)
-            for x in dns_lookup(host, lookup_type):
-                print "    ", x
+        print '[*] DNS Lookup\n' + '-' * 15
+        for t in hosts:
+            if 'all' in lookup_type:
+                for d in all_types:
+                    results = dns_lookup(t, d)
+                    if results:
+                        print "\n[+] %s records for %s" % (d, t)
+                        for x in results:
+                            print "    ", x
+            else:
+                results = dns_lookup(t, lookup_type)
+                if results:
+                    print "\n[+] %s records for %s" % (lookup_type, t)
+                    for x in results:
+                        print "    ", x
+
+    # Reverse DNS Lookup
     elif rev:
-        print "[*] Reverse DNS Lookup for: %s" % (host)
-        for x in reverse_lookup(host):
-            print "    ", x
+        print '[*] Reverse DNS Lookup\n' + '-' * 22
+        for t in hosts:
+            results = reverse_lookup(t)
+            if results:
+                for x in results:
+                    print "[+] %s (%s)" % (x, t)
     else:
         print "[*] No lookup argument provided, see -h for more\n\n"
         sys.exit(0)

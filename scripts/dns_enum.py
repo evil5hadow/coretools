@@ -8,10 +8,9 @@
 # consent. Use at your own risk.
 
 import sys
-import dns_lookup
-import dns.resolver
 import dns.zone
-from list_targets import arg_parser
+import os
+from resources.pts import arg_parser, dns_lookup
 
 def banner():
     print '''
@@ -21,33 +20,27 @@ Script to perform Subdomain enumeration via DNS and
 DNS zone transfers on the targeted domain.
 
 DNS Zone Transfer:
-    -z                  Perform DNS Zone Transfer
+    -z                          Perform DNS Zone Transfer
 
 Sub-Domain Brute Force:
-    -s                  Subdomain Brute force
-    -w [file.txt]       custom word list
+    -s                          Subdomain Brute force
+    -w [file.txt]               custom word list
 
 Usage:
     python dns_enum.py -z zonetransfer.me
-    python dns_enum.py -s yahoo.com
-        '''
+    python dns_enum.py -s example.com
+    '''
     sys.exit(0)
 
 def subdomain_enum(target):
-    print '\n[*] Sub-Domain Enumeration for: %s'  % (target)
-    print '-'*40
+    print '[*] Sub-Domain Enumeration\n' + '-'*40
     #Get word list
-    subs = arg_parser(name='wordlist', flag='-w', type=file, default='../resources/dns_enum_subdomains.txt')
+    subs = arg_parser(flag='-w', type='file', default='../wordlists/dns_enum_subdomains.txt')
     # DNS query for each subdomain
     for s in subs:
         query = s+'.'+target
         try:
-             # Setup DNS query
-             resolver = dns.resolver.Resolver()
-             resolver.timeout = 3
-             resolver.lifetime = 3
-             dns_query = resolver.query(query, 'A')
-             dns_query.nameservers = ['8.8.8.8', '8.8.4.4']
+             dns_query = dns_lookup(target, 'A')
              for resp in dns_query:
                  # Print Output
                  space_num = len(sys.argv[-1]) + 10
@@ -56,17 +49,16 @@ def subdomain_enum(target):
             pass
 
 def zone_transfer(target):
-    print '\n[*] DNS Zone Transfer for: %s' % (target)
-    print '-' * 40
+    print '[*] DNS Zone Transfer\n' + '-' * 40
     #Get Name Servers
-    for ns_name in dns_lookup.dns_lookup(target, 'NS'):
+    for ns_name in dns_lookup(target, 'NS'):
         try:
             z = dns.zone.from_xfr(dns.query.xfr(str(ns_name), target, lifetime=5))
             names = z.nodes.keys()
             names.sort()
             for n in names:
                 #Output
-                print "[+] %s \n" % (z[n].to_text(n))
+                print (z[n].to_text(n))
         except Exception as e:
             print "[!] Error: ",e
 
@@ -81,10 +73,12 @@ def main():
             print "\n[!] DNS_enum Target Error, use -h for more\n\n"
             sys.exit(0)
 
+        #Start
         if "-z" in sys.argv:
             zone_transfer(target)
         elif "-s" in sys.argv:
             subdomain_enum(target)
+
         else:
             print "\n[-] No options selected, use -h for more information\n\n"
             sys.exit(0)
