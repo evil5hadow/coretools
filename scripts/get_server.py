@@ -26,7 +26,7 @@ Options:
     -v                      Verbose output (show failed attempts)
     -t                      Number of threads (default: 4)
     --dns                   Keep DNS name while running
-                            (Default: will resolv dns names)
+                            (Default: will resolve dns names)
 
 Usage:
     python get_server.py -m http scope.txt
