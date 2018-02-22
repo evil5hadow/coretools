@@ -1,11 +1,11 @@
-# Pentest-Scripts
+# CoreTools
 This is a collection of scripts I wrote or had the idea to write during penetration testing. Some have been modified and turned into full blown tools.
 
 To get started, download the repository and run the setup.sh script to verify all required packages are installed.
 
 ## Getting Started
 In the Linux terminal type:
-* git clone https://github.com/m8r0wn/pentest-scripts
+* git clone https://github.com/m8r0wn/coretools
 * sudo chmod +x pentest-scripts/setup.sh
 * sudo ./pentest-scripts/setup.sh
 
