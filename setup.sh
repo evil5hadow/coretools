@@ -4,7 +4,7 @@
 # Script: setup.sh
 
 # Description:
-# pentest-scripts setup verifies all required packages
+# Coretools setup verifies all required packages
 # are installed on the system.
 
 #Check if Script run as root
@@ -13,7 +13,7 @@ if [[ $(id -u) != 0 ]]; then
 	exit 0
 fi
 
-echo -e "\n[*] Starting pentest-scripts setup"
+echo -e "\n[*] Starting coretools setup"
 echo -e "[*] Checking for Python 2.7"
 if [[ $(python2.7 -V 2>&1) == *"not found"* ]]
 then
@@ -56,4 +56,4 @@ else
     echo "[+] pysmb installed"
 fi
 
-echo -e "\n[*] pentest-scripts setup complete\n\n"
+echo -e "\n[*] Coretools setup complete\n\n"
