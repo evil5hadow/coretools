@@ -6,8 +6,8 @@ To get started, download the repository and run the setup.sh script to verify al
 ## Getting Started
 In the Linux terminal type:
 * git clone https://github.com/m8r0wn/coretools
-* sudo chmod +x pentest-scripts/setup.sh
-* sudo ./pentest-scripts/setup.sh
+* sudo chmod +x coretools/setup.sh
+* sudo ./coretools/setup.sh
 
 ## Scripts
 * `dns_enum.py` - DNS subdomain enumeration and options to perform zone transfer
